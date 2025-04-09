@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Flow - Project Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .sidebar {
+            width: 60px;
+            background-color: #fff;
+            padding: 20px 10px;
+            height: 100vh;
+            position: fixed;
+            border-right: 1px solid #ddd;
+            transition: transform 0.3s ease;
+            z-index: 20;
+        }
+
+        .sidebar .logo {
+            color: #00b7eb;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px 0;
+            text-decoration: none;
+            color: #666;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .sidebar a:hover {
+            color: #007bff;
+        }
+
+        .sidebar a i {
+            font-size: 20px;
+        }
+
+        .sidebar a span {
+            display: none;
+        }
+
+        .header {
+            background-color: #fff;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: calc(100% - 60px);
+            position: fixed;
+            top: 0;
+            left: 60px;
+            z-index: 10;
+            border-bottom: 1px solid #ddd;
+            transition: width 0.3s ease, left 0.3s ease;
+        }
+
+        .header .search-bar {
+            flex-grow: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-right: 20px;
+        }
+
+        .header .filters {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .header .filters select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fff;
+            color: #333;
+        }
+
+        .header .filters a {
+            color: #007bff;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 70px 20px 20px 20px;
+            margin-left: 60px;
+            overflow-y: auto;
+            height: 100vh;
+            background-color: #f5f5f5;
+            transition: margin-left 0.3s ease;
+        }
+
+        .kanban-board {
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+            padding-bottom: 20px;
+        }
+
+        .kanban-column {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 300px;
+            padding: 10px;
+            min-height: 400px;
+            flex-shrink: 0;
+        }
+
+        .kanban-column h3 {
+            font-size: 16px;
+            color: #fff;
+            padding: 10px;
+            margin: -10px -10px 10px -10px;
+            border-radius: 5px 5px 0 0;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .kanban-column[data-status="To-Do"] h3 {
+            background-color: #f28c38;
+        }
+        .kanban-column[data-status="Yet to Start"] h3 {
+            background-color: #28a745;
+        }
+        .kanban-column[data-status="In-Progress"] h3 {
+            background-color: #007bff;
+        }
+        .kanban-column[data-status="On-Hold"] h3 {
+            background-color: #dc3545;
+        }
+        .kanban-column[data-status="Completed"] h3 {
+            background-color: #17a2b8;
+        }
+
+        .kanban-column h3 .count {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            padding: 2px 8px;
+            font-size: 12px;
+        }
+
+        .add-task-btn-column {
+            background-color: #f0f0f0;
+            border: 1px dashed #ccc;
+            border-radius: 5px;
+            padding: 8px;
+            text-align: center;
+            cursor: pointer;
+            color: #666;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .add-task-btn-column:hover {
+            background-color: #e0e0e0;
+        }
+
+        .task-card {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            cursor: move;
+            position: relative;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .task-card .title {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .task-card .task-id {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .task-card .due-date {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .task-card .assigned-users {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .task-card .assigned-users img {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+        }
+
+        .task-card .actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+        }
+
+        .task-card .actions i {
+            cursor: pointer;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .task-card .actions i:hover {
+            color: #007bff;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .modal-content label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .modal-content input,
+        .modal-content select,
+        .modal-content textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fff;
+            color: #333;
+        }
+
+        .modal-content textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .modal-content .user-select {
+            max-height: 150px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fff;
+        }
+
+        .modal-content .user-select label {
+            color: #333;
+        }
+
+        .modal-content button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .modal-content .save-btn {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        .modal-content .save-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .modal-content .cancel-btn {
+            background-color: #f0f0f0;
+            margin-left: 10px;
+            color: #333;
+        }
+
+        .modal-content .cancel-btn:hover {
+            background-color: #e0e0e0;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Hamburger menu for mobile */
+        .hamburger {
+            display: none;
+            font-size: 24px;
+            color: #333;
+            cursor: pointer;
+            padding: 10px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hamburger {
+                display: block;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+                width: 200px;
+                padding: 20px;
+                position: fixed;
+                top: 0;
+                left: 0;
+                z-index: 30;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .sidebar a span {
+                display: block;
+            }
+
+            .sidebar a {
+                justify-content: flex-start;
+            }
+
+            .sidebar a i {
+                margin-right: 10px;
+            }
+
+            .header {
+                width: 100%;
+                left: 0;
+                padding: 10px 15px;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 70px 15px 15px 15px;
+            }
+
+            .kanban-board {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .kanban-column {
+                width: 100%;
+                max-width: 400px;
+            }
+
+            .header .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .header .filters select {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .task-card .title {
+                font-size: 12px;
+            }
+
+            .task-card .task-id,
+            .task-card .due-date {
+                font-size: 10px;
+            }
+
+            .task-card .assigned-users img {
+                width: 20px;
+                height: 20px;
+            }
+
+            .modal-content {
+                padding: 15px;
+            }
+
+            .modal-content h2 {
+                font-size: 18px;
+            }
+
+            .modal-content input,
+            .modal-content select,
+            .modal-content textarea {
+                padding: 6px;
+            }
+
+            .modal-content button {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="hamburger" onclick="toggleSidebar()">☰</div>
+    <div class="sidebar">
+        <div class="logo">TF</div>
+        <a href="#" onclick="showDashboard()"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
+        <a href="#" onclick="showTaskManagement()"><i class="fas fa-tasks"></i><span>Task Management</span></a>
+        <a href="#" onclick="showProjects()"><i class="fas fa-folder"></i><span>Projects</span></a>
+        <a href="#"><i class="fas fa-calendar"></i><span>Calendar</span></a>
+        <a href="#"><i class="fas fa-users"></i><span>Team</span></a>
+        <a href="#"><i class="fas fa-chart-bar"></i><span>Report</span></a>
+        <a href="#"><i class="fas fa-user"></i><span>Clients</span></a>
+    </div>
+
+    <div class="header">
+        <input type="text" class="search-bar" placeholder="Search Task..." onkeyup="filterTasks()">
+        <div class="filters">
+            <select id="priorityFilter" onchange="filterTasks()">
+                <option value="">Priority</option>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+            </select>
+            <select id="labelFilter" onchange="filterTasks()">
+                <option value="">Labels</option>
+                <option value="Development">Development</option>
+                <option value="Design">Design</option>
+                <option value="Testing">Testing</option>
+                <option value="Documentation">Documentation</option>
+            </select>
+            <a href="#" onclick="clearFilters()">Clear Filter</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Dashboard View -->
+        <div id="dashboardView">
+            <div class="dashboard-container">
+                <h2>Dashboard</h2>
+                <!-- Dashboard content can be added here -->
+            </div>
+        </div>
+
+        <!-- Task Management View -->
+        <div id="taskManagementView" class="hidden">
+            <div class="kanban-board">
+                <!-- Task Management content can be added here -->
+            </div>
+        </div>
+
+        <!-- Projects View -->
+        <div id="projectsView" class="hidden">
+            <div class="kanban-board" id="kanbanView">
+                <div class="kanban-column" data-status="To-Do">
+                    <h3>To-Do <span class="count">0</span></h3>
+                    <div class="task-list"></div>
+                    <div class="add-task-btn-column" onclick="openAddTaskModal('To-Do')">+ Add Task</div>
+                </div>
+                <div class="kanban-column" data-status="Yet to Start">
+                    <h3>Yet to Start <span class="count">0</span></h3>
+                    <div class="task-list"></div>
+                    <div class="add-task-btn-column" onclick="openAddTaskModal('Yet to Start')">+ Add Task</div>
+                </div>
+                <div class="kanban-column" data-status="In-Progress">
+                    <h3>In-Progress <span class="count">0</span></h3>
+                    <div class="task-list"></div>
+                    <div class="add-task-btn-column" onclick="openAddTaskModal('In-Progress')">+ Add Task</div>
+                </div>
+                <div class="kanban-column" data-status="On-Hold">
+                    <h3>On-Hold <span class="count">0</span></h3>
+                    <div class="task-list"></div>
+                    <div class="add-task-btn-column" onclick="openAddTaskModal('On-Hold')">+ Add Task</div>
+                </div>
+                <div class="kanban-column" data-status="Completed">
+                    <h3>Completed <span class="count">0</span></h3>
+                    <div class="task-list"></div>
+                    <div class="add-task-btn-column" onclick="openAddTaskModal('Completed')">+ Add Task</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="taskModal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Add New Task</h2>
+            <form id="taskForm">
+                <input type="hidden" id="taskId">
+                <label for="taskTitle">Task Title</label>
+                <input type="text" id="taskTitle" name="taskTitle" required>
+                
+                <label for="taskDescription">Description</label>
+                <textarea id="taskDescription" name="taskDescription"></textarea>
+                
+                <label for="taskDueDate">Due Date</label>
+                <input type="date" id="taskDueDate" name="taskDueDate" required>
+                
+                <label for="taskCategory">Category</label>
+                <select id="taskCategory" name="taskCategory">
+                    <option value="Development">Development</option>
+                    <option value="Design">Design</option>
+                    <option value="Testing">Testing</option>
+                    <option value="Documentation">Documentation</option>
+                </select>
+                
+                <label for="taskPriority">Priority</label>
+                <select id="taskPriority" name="taskPriority">
+                    <option value="High">High</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Low">Low</option>
+                </select>
+                
+                <label for="taskStatus">Status</label>
+                <select id="taskStatus" name="taskStatus">
+                    <option value="To-Do">To-Do</option>
+                    <option value="Yet to Start">Yet to Start</option>
+                    <option value="In-Progress">In-Progress</option>
+                    <option value="On-Hold">On-Hold</option>
+                    <option value="Completed">Completed</option>
+                </select>
+                
+                <label>Assign Users</label>
+                <div class="user-select">
+                    <label><input type="checkbox" name="assignedUsers" value="John"> John</label><br>
+                    <label><input type="checkbox" name="assignedUsers" value="Jane"> Jane</label><br>
+                    <label><input type="checkbox" name="assignedUsers" value="Mike"> Mike</label><br>
+                    <label><input type="checkbox" name="assignedUsers" value="Sarah"> Sarah</label>
+                </div>
+
+                <button type="submit" class="save-btn">Save</button>
+                <button type="button" class="cancel-btn" onclick="closeTaskModal()">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        const users = ['John', 'Jane', 'Mike', 'Sarah'];
+
+        // Initialize SortableJS for Kanban view
+        document.querySelectorAll('.kanban-column .task-list').forEach(column => {
+            new Sortable(column, {
+                group: 'kanban',
+                animation: 150,
+                onEnd: function (evt) {
+                    const taskId = evt.item.getAttribute('data-id');
+                    const newStatus = evt.to.parentElement.getAttribute('data-status');
+                    const task = tasks.find(t => t.id == taskId);
+                    if (task) {
+                        task.status = newStatus;
+                        if (newStatus === 'Completed') task.progress = 100;
+                        saveTasks();
+                    }
+                }
+            });
+        });
+
+        function saveTasks() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            renderTasks();
+            updateTaskCounts();
+        }
+
+        function updateTaskCounts() {
+            document.querySelectorAll('.kanban-column').forEach(column => {
+                const status = column.getAttribute('data-status');
+                const count = tasks.filter(t => t.status === status).length;
+                column.querySelector('.count').textContent = count;
+            });
+        }
+
+        function renderTasks(filteredTasks = tasks) {
+            document.querySelectorAll('.task-list').forEach(list => list.innerHTML = '');
+            filteredTasks.forEach(task => addKanbanCard(task));
+        }
+
+        function addKanbanCard(task) {
+            const column = document.querySelector(`.kanban-column[data-status="${task.status}"] .task-list`);
+            const taskCard = document.createElement('div');
+            taskCard.className = 'task-card';
+            taskCard.setAttribute('data-id', task.id);
+            updateKanbanCardContent(taskCard, task);
+            column.appendChild(taskCard);
+        }
+
+        function updateKanbanCardContent(taskCard, task) {
+            taskCard.innerHTML = `
+                <div class="task-id">Task ${task.id}</div>
+                <div class="title">${task.title}</div>
+                <div class="due-date">Due: ${task.dueDate}</div>
+                <div class="assigned-users">
+                    ${task.assignedUsers.map(user => `<img src="https://via.placeholder.com/24?text=${user.charAt(0)}" title="${user}" alt="User Avatar">`).join('')}
+                </div>
+                <div class="actions">
+                    <i class="fas fa-edit" onclick="openEditTaskModal(this)"></i>
+                    <i class="fas fa-trash" onclick="deleteTask(this)"></i>
+                </div>
+            `;
+        }
+
+        function openTaskModal(mode, task = null, defaultStatus = null) {
+            const modal = document.getElementById('taskModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const form = document.getElementById('taskForm');
+            const taskIdInput = document.getElementById('taskId');
+            const titleInput = document.getElementById('taskTitle');
+            const descInput = document.getElementById('taskDescription');
+            const dueDateInput = document.getElementById('taskDueDate');
+            const categorySelect = document.getElementById('taskCategory');
+            const prioritySelect = document.getElementById('taskPriority');
+            const statusSelect = document.getElementById('taskStatus');
+            const userCheckboxes = document.getElementsByName('assignedUsers');
+
+            if (mode === 'add') {
+                modalTitle.textContent = 'Add New Task';
+                taskIdInput.value = '';
+                titleInput.value = '';
+                descInput.value = '';
+                dueDateInput.value = '';
+                categorySelect.value = 'Development';
+                prioritySelect.value = 'High';
+                statusSelect.value = defaultStatus || 'To-Do';
+                userCheckboxes.forEach(cb => cb.checked = false);
+            } else {
+                modalTitle.textContent = 'Edit Task';
+                taskIdInput.value = task.id;
+                titleInput.value = task.title;
+                descInput.value = task.description || '';
+                dueDateInput.value = task.dueDate;
+                categorySelect.value = task.category;
+                prioritySelect.value = task.priority;
+                statusSelect.value = task.status;
+                userCheckboxes.forEach(cb => cb.checked = task.assignedUsers.includes(cb.value));
+            }
+
+            modal.style.display = 'flex';
+        }
+
+        function openAddTaskModal(status) {
+            openTaskModal('add', null, status);
+        }
+
+        function openEditTaskModal(element) {
+            const taskId = element.closest('.task-card').getAttribute('data-id');
+            const task = tasks.find(t => t.id == taskId);
+            openTaskModal('edit', task);
+        }
+
+        function closeTaskModal() {
+            document.getElementById('taskModal').style.display = 'none';
+            document.getElementById('taskForm').reset();
+        }
+
+        document.getElementById('taskForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const taskId = document.getElementById('taskId').value;
+
+            const taskData = {
+                id: taskId || Date.now().toString(),
+                title: document.getElementById('taskTitle').value,
+                description: document.getElementById('taskDescription').value,
+                dueDate: document.getElementById('taskDueDate').value,
+                category: document.getElementById('taskCategory').value,
+                priority: document.getElementById('taskPriority').value,
+                status: document.getElementById('taskStatus').value,
+                assignedUsers: Array.from(document.getElementsByName('assignedUsers'))
+                    .filter(cb => cb.checked)
+                    .map(cb => cb.value)
+            };
+
+            if (taskId) {
+                const taskIndex = tasks.findIndex(t => t.id === taskId);
+                tasks[taskIndex] = taskData;
+            } else {
+                tasks.push(taskData);
+            }
+
+            saveTasks();
+            closeTaskModal();
+        });
+
+        function deleteTask(element) {
+            if (confirm('Are you sure you want to delete this task?')) {
+                const taskId = element.closest('.task-card').getAttribute('data-id');
+                tasks = tasks.filter(t => t.id !== taskId);
+                saveTasks();
+            }
+        }
+
+        function filterTasks() {
+            const search = document.querySelector('.header .search-bar').value.toLowerCase();
+            const priority = document.getElementById('priorityFilter').value;
+            const category = document.getElementById('labelFilter').value;
+
+            const filteredTasks = tasks.filter(task => {
+                return (!search || task.title.toLowerCase().includes(search) || task.description.toLowerCase().includes(search)) &&
+                       (!priority || task.priority === priority) &&
+                       (!category || task.category === category);
+            });
+
+            renderTasks(filteredTasks);
+        }
+
+        function clearFilters() {
+            document.querySelector('.header .search-bar').value = '';
+            document.getElementById('priorityFilter').value = '';
+            document.getElementById('labelFilter').value = '';
+            renderTasks();
+        }
+
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('active');
+        }
+
+        function showDashboard() {
+            document.getElementById('dashboardView').classList.remove('hidden');
+            document.getElementById('taskManagementView').classList.add('hidden');
+            document.getElementById('projectsView').classList.add('hidden');
+        }
+
+        function showTaskManagement() {
+            document.getElementById('dashboardView').classList.add('hidden');
+            document.getElementById('taskManagementView').classList.remove('hidden');
+            document.getElementById('projectsView').classList.add('hidden');
+        }
+
+        function showProjects() {
+            document.getElementById('dashboardView').classList.add('hidden');
+            document.getElementById('taskManagementView').classList.add('hidden');
+            document.getElementById('projectsView').classList.remove('hidden');
+            renderTasks();
+        }
+
+        // Initial setup
+        if (!tasks.length) {
+            tasks = [
+                {
+                    id: '20',
+                    title: 'Design Homepage',
+                    description: 'Create initial mockups',
+                    dueDate: '2021-04-20',
+                    category: 'Design',
+                    priority: 'High',
+                    status: 'To-Do',
+                    assignedUsers: ['John']
+                },
+                {
+                    id: '55',
+                    title: 'Develop API',
+                    description: 'Create RESTful API',
+                    dueDate: '2021-04-20',
+                    category: 'Development',
+                    priority: 'High',
+                    status: 'To-Do',
+                    assignedUsers: ['Jane']
+                },
+                {
+                    id: '17',
+                    title: 'Test Features',
+                    description: 'Test new features',
+                    dueDate: '2021-04-20',
+                    category: 'Testing',
+                    priority: 'Medium',
+                    status: 'To-Do',
+                    assignedUsers: ['Mike']
+                },
+                {
+                    id: '05',
+                    title: 'Write Docs',
+                    description: 'Document API usage',
+                    dueDate: '2021-05-22',
+                    category: 'Documentation',
+                    priority: 'Medium',
+                    status: 'Yet to Start',
+                    assignedUsers: ['Sarah']
+                },
+                {
+                    id: '52',
+                    title: 'Review Code',
+                    description: 'Code review for API',
+                    dueDate: '2021-04-15',
+                    category: 'Development',
+                    priority: 'High',
+                    status: 'Yet to Start',
+                    assignedUsers: ['John']
+                },
+                {
+                    id: '08',
+                    title: 'Update UI',
+                    description: 'Update user interface',
+                    dueDate: '2021-06-02',
+                    category: 'Design',
+                    priority: 'Low',
+                    status: 'Yet to Start',
+                    assignedUsers: ['Jane']
+                },
+                {
+                    id: '19',
+                    title: 'Implement Auth',
+                    description: 'Add authentication',
+                    dueDate: '2021-04-22',
+                    category: 'Development',
+                    priority: 'High',
+                    status: 'In-Progress',
+                    assignedUsers: ['Mike']
+                },
+                {
+                    id: '09',
+                    title: 'Fix Bugs',
+                    description: 'Fix reported bugs',
+                    dueDate: '2021-09-11',
+                    category: 'Testing',
+                    priority: 'Medium',
+                    status: 'In-Progress',
+                    assignedUsers: ['Sarah']
+                },
+                {
+                    id: '04',
+                    title: 'Optimize DB',
+                    description: 'Optimize database queries',
+                    dueDate: '2021-04-22',
+                    category: 'Development',
+                    priority: 'High',
+                    status: 'On-Hold',
+                    assignedUsers: ['John']
+                },
+                {
+                    id: '01',
+                    title: 'Setup Project',
+                    description: 'Initial project setup',
+                    dueDate: '2021-04-22',
+                    category: 'Development',
+                    priority: 'High',
+                    status: 'Completed',
+                    assignedUsers: ['Jane']
+                },
+                {
+                    id: '23',
+                    title: 'Deploy App',
+                    description: 'Deploy application',
+                    dueDate: '2021-04-22',
+                    category: 'Development',
+                    priority: 'High',
+                    status: 'Completed',
+                    assignedUsers: ['Mike']
+                }
+            ];
+        }
+        saveTasks();
+        showDashboard(); // Show dashboard by default
+    </script>
+</body>
+</html>

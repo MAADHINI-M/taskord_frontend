@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-TaskcordApplication<Taskcord>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.taskcord.TaskcordApplication",
+            "projectName": "Taskcord",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

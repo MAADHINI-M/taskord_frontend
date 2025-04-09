@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Dashboard</title>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .header {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .row {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .card {
+            background-color: #2a2a2a;
+            border-radius: 10px;
+            padding: 20px;
+            flex: 1;
+            min-width: 250px;
+        }
+        .progress-circle {
+            text-align: center;
+        }
+        .progress-circle svg {
+            width: 150px;
+            height: 150px;
+        }
+        .progress-circle text {
+            font-size: 24px;
+            fill: #ffffff;
+        }
+        .progress-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 10px;
+        }
+        .progress-stats div {
+            text-align: center;
+        }
+        .progress-stats .blue { color: #00b7eb; }
+        .progress-stats .green { color: #00ff00; }
+        .progress-stats .purple { color: #a100ff; }
+        .task-list, .meeting-list {
+            list-style: none;
+            padding: 0;
+        }
+        .task-list li, .meeting-list li {
+            background-color: #3a3a3a;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            text-align: center;
+        }
+        .calendar div {
+            padding: 10px;
+            border-radius: 50%;
+        }
+        .calendar .day {
+            background-color: #3a3a3a;
+        }
+        .calendar .highlighted {
+            background-color: #a100ff;
+        }
+        .task-progress {
+            display: flex;
+            align-items: flex-end;
+            gap: 5px;
+            height: 100px;
+        }
+        .task-progress div {
+            background-color: #a100ff;
+            width: 20px;
+            border-radius: 5px;
+        }
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .timeline-item div {
+            background-color: #a100ff;
+            height: 20px;
+            flex: 1;
+            border-radius: 5px;
+        }
+        .timeline-item .blue { background-color: #00b7eb; }
+        .timeline-item .green { background-color: #00ff00; }
+        button {
+            background-color: #a100ff;
+            color: #ffffff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #8a00e6;
+        }
+        select {
+            background-color: #3a3a3a;
+            color: #ffffff;
+            border: none;
+            padding: 5px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">Project Dashboard</div>
+
+        <div class="row">
+            <!-- Project Progress -->
+            <div class="card">
+                <h3>Project Progress</h3>
+                <div class="progress-circle">
+                    <!-- SVG for circular progress (simplified) -->
+                    <svg viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="40" stroke="#00b7eb" stroke-width="10" fill="none" stroke-dasharray="200 251" stroke-dashoffset="50"/>
+                        <text x="50" y="55" text-anchor="middle">80%</text>
+                    </svg>
+                </div>
+                <div class="progress-stats">
+                    <div class="blue"><span th:text="${tasksDoneBlue} ?: 32">32</span><br>Tasks done</div>
+                    <div class="green"><span th:text="${tasksDoneGreen} ?: 12">12</span><br>Tasks done</div>
+                    <div class="purple"><span th:text="${tasksDonePurple} ?: 16">16</span><br>Tasks done</div>
+                </div>
+            </div>
+
+            <!-- Today's Tasks -->
+            <div class="card">
+                <h3>Today's Tasks <span th:text="${taskCount} ?: 5">5</span></h3>
+                <button>+ Add new task</button>
+                <ul class="task-list">
+                    <li th:each="task : ${tasks}">
+                        <input type="checkbox" th:checked="${task.completed}"/>
+                        <span th:text="${task.name}">Have an in-depth look...</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Calendar -->
+            <div class="card">
+                <h3>Calendar</h3>
+                <select>
+                    <option>December</option>
+                </select>
+                <div class="calendar">
+                    <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
+                    <!-- Static calendar for December -->
+                    <div></div><div></div><div class="day">1</div><div class="day">2</div><div class="day">3</div><div class="day">4</div><div class="day">5</div>
+                    <div class="day">6</div><div class="day">7</div><div class="day">8</div><div class="day">9</div><div class="day">10</div><div class="day">11</div><div class="day">12</div>
+                    <div class="day">13</div><div class="day">14</div><div class="day highlighted">15</div><div class="day">16</div><div class="day">17</div><div class="day">18</div><div class="day">19</div>
+                    <div class="day">20</div><div class="day">21</div><div class="day">22</div><div class="day">23</div><div class="day">24</div><div class="day">25</div><div class="day">26</div>
+                    <div class="day">27</div><div class="day">28</div><div class="day">29</div><div class="day">30</div><div class="day">31</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Task Progress -->
+            <div class="card">
+                <h3>Task Progress</h3>
+                <div class="task-progress">
+                    <div style="height: 20px;"></div>
+                    <div style="height: 30px;"></div>
+                    <div style="height: 65px;">65%</div>
+                    <div style="height: 40px;"></div>
+                    <div style="height: 50px;"></div>
+                    <div style="height: 30px;"></div>
+                    <div style="height: 20px;"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span>12</span><span>13</span><span>14</span><span>15</span><span>16</span><span>17</span><span>18</span><span>19</span>
+                </div>
+            </div>
+
+            <!-- Today's Meetings -->
+            <div class="card">
+                <h3>Today's Meetings <span th:text="${meetingCount} ?: 4">4</span></h3>
+                <ul class="meeting-list">
+                    <li th:each="meeting : ${meetings}">
+                        <span th:text="${meeting.time}">10:00</span> - <span th:text="${meeting.status}">Ongoing</span><br>
+                        <span th:text="${meeting.description}">Present the project and gather feedback...</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Tasks Timeline -->
+            <div class="card">
+                <h3>Tasks Timeline</h3>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <span>Interview</span>
+                        <div class="purple"></div>
+                    </div>
+                    <div class="timeline-item">
+                        <span>Ideate</span>
+                        <div class="green"></div>
+                    </div>
+                    <div class="timeline-item">
+                        <span>Wireframe</span>
+                        <div class="purple"></div>
+                    </div>
+                    <div class="timeline-item">
+                        <span>Evaluate</span>
+                        <div class="blue"></div>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span>12</span><span>13</span><span>14</span><span>15</span><span>16</span><span>17</span><span>18</span><span>19</span><span>20</span><span>21</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
