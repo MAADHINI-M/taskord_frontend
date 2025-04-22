@@ -12,15 +12,16 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
     <style>
         :root {
-            --primary-color: #6a11cb;
+            --primary-color: #7b39d6; /* Slightly lighter for better visibility */
             --secondary-color: #2575fc;
             --sidebar-width: 250px;
             --sidebar-collapsed-width: 80px;
             --header-height: 60px;
             --card-bg: #2a2a2a;
+            --table-bg: #3a3a3a; /* New variable for table background */
             --text-primary: #ffffff;
             --text-secondary: #e0e0e0;
-            --border-color: #333333;
+            --border-color: #444444; /* Slightly lighter for contrast */
         }
 
         * {
@@ -179,6 +180,7 @@
         }
 
         .table {
+            background-color: var(--table-bg); /* Lighter table background */
             color: var(--text-primary);
             width: 100% !important;
         }
@@ -190,12 +192,18 @@
         }
 
         .table thead th {
-            background-color: rgba(0, 0, 0, 0.2);
+            background-color: rgba(0, 0, 0, 0.3); /* Slightly darker header */
             border-bottom: 2px solid var(--border-color);
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .table tbody tr {
+            background-color: var(--table-bg);
         }
 
         .table tbody tr:hover {
-            background-color: rgba(255, 255, 255, 0.05);
+            background-color: rgba(255, 255, 255, 0.1); /* Brighter hover effect */
         }
 
         .btn-action {
@@ -256,6 +264,7 @@
         .badge {
             font-weight: 500;
             padding: 5px 10px;
+            color: #ffffff !important; /* Ensure badge text is white */
         }
 
         .bg-primary {
@@ -277,6 +286,10 @@
 
         .bg-danger {
             background-color: #dc3545 !important;
+        }
+
+        .bg-secondary {
+            background-color: #6c757d !important; /* Lighter secondary for Inactive status */
         }
 
         .toast-container {
@@ -308,7 +321,7 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background-color: rgba(106, 17, 203, 0.2);
+            background-color: rgba(123, 57, 214, 0.3); /* Lighter avatar background */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -324,7 +337,7 @@
 
         .avatar-initials {
             font-weight: bold;
-            color: var(--primary-color);
+            color: #ffffff; /* White initials for visibility */
         }
 
         .user-info-cell {
@@ -334,11 +347,12 @@
 
         .user-name {
             font-weight: 500;
+            color: var(--text-primary);
         }
 
         .user-email {
             font-size: 0.8rem;
-            color: var(--text-secondary);
+            color: #c0c0c0; /* Lighter gray for better visibility */
         }
 
         .action-dropdown .dropdown-menu {
@@ -354,11 +368,21 @@
             background-color: rgba(106, 17, 203, 0.2);
         }
 
+        .action-dropdown .btn-secondary {
+            background-color: #5a5a5a; /* Lighter button for visibility */
+            border-color: var(--border-color);
+        }
+
+        .action-dropdown .btn-secondary:hover {
+            background-color: #6a6a6a;
+        }
+
         .status-badge {
             padding: 5px 10px;
             border-radius: 20px;
             font-size: 0.8rem;
             font-weight: 500;
+            color: #ffffff !important; /* Ensure status badge text is white */
         }
 
         @media (max-width: 992px) {
@@ -764,7 +788,7 @@
         function saveUsers() {
             localStorage.setItem('users', JSON.stringify(users));
             if (usersTable) {
-                usersTable.ajax.reload();
+                usersTable.clear().rows.add(users).draw();
             }
         }
 

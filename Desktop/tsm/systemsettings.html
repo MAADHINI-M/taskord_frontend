@@ -1,386 +1,1690 @@
-<!-- src/main/resources/templates/admin/profile.html -->
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Profile</title>
+    <title>TASKORD | System Settings</title>
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link th:href="@{/css/dark-theme.css}" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Toastr for notifications -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <style>
-        /* src/main/resources/static/css/dark-theme.css */
-:root {
-  --primary-color: #a100ff;
-  --secondary-color: #6a00ff;
-  --background-dark: #1a1a1a;
-  --background-darker: #121212;
-  --background-light: #2a2a2a;
-  --background-lighter: #3a3a3a;
-  --text-primary: #ffffff;
-  --text-secondary: #cccccc;
-  --text-muted: #999999;
-  --success-color: #00aa55;
-  --warning-color: #ffaa00;
-  --danger-color: #ff5555;
-  --info-color: #00b7eb;
-  --border-color: #444444;
-}
+        :root {
+            --primary-color: #6a11cb;
+            --secondary-color: #2575fc;
+            --sidebar-width: 250px;
+            --sidebar-collapsed-width: 80px;
+            --header-height: 60px;
+            --card-bg: #2a2a2a;
+            --text-primary: #ffffff;
+            --text-secondary: #e0e0e0;
+            --border-color: #333333;
+        }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
 
-body {
-  background-color: var(--background-dark);
-  color: var(--text-primary);
-  min-height: 100vh;
-}
+        body {
+            background-color: #121212;
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
 
-/* Navigation */
-.navbar {
-  background-color: var(--background-light);
-  border-bottom: 1px solid var(--border-color);
-  padding: 0.8rem 1.5rem;
-}
+        .header {
+            height: var(--header-height);
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
 
-.navbar-brand {
-  color: var(--primary-color);
-  font-weight: bold;
-  font-size: 1.2rem;
-}
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-.nav-link {
-  color: var(--text-secondary);
-  padding: 0.5rem 1rem;
-  transition: all 0.3s ease;
-}
+        .hamburger {
+            cursor: pointer;
+            font-size: 1.5rem;
+            margin-right: 15px;
+        }
 
-.nav-link:hover,
-.nav-link.active {
-  color: var(--primary-color);
-}
+        .logotxt {
+            font-size: 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
 
-/* Cards */
-.card {
-  background-color: var(--background-light);
-  border: none;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  margin-bottom: 1.5rem;
-}
+        .sidebar {
+            width: var(--sidebar-width);
+            height: calc(100vh - var(--header-height));
+            background-color: #1e1e1e;
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+            border-right: 1px solid var(--border-color);
+        }
 
-.card-header {
-  background-color: var(--background-lighter);
-  border-bottom: 1px solid var(--border-color);
-  padding: 1rem 1.5rem;
-  font-weight: 500;
-}
+        .sidebar-collapsed {
+            width: var(--sidebar-collapsed-width);
+        }
 
-.card-body {
-  padding: 1.5rem;
-}
+        .sidebar-collapsed .nav-link span {
+            display: none;
+        }
 
-/* Tables */
-.table {
-  color: var(--text-primary);
-  margin-bottom: 0;
-}
+        .sidebar-collapsed .logotxt {
+            display: none;
+        }
 
-.table th {
-  background-color: var(--background-lighter);
-  border-bottom: 2px solid var(--border-color);
-  font-weight: 600;
-}
+        .nav-menu {
+            list-style: none;
+            padding: 20px 0;
+        }
 
-.table td, .table th {
-  border-top: 1px solid var(--border-color);
-  padding: 0.75rem 1rem;
-  vertical-align: middle;
-}
+        .nav-item {
+            margin-bottom: 5px;
+        }
 
-.table-hover tbody tr:hover {
-  background-color: rgba(161, 0, 255, 0.1);
-}
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
 
-/* Buttons */
-.btn {
-  padding: 0.5rem 1rem;
-  border-radius: 5px;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
+        .nav-link i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+            min-width: 24px;
+        }
 
-.btn-primary {
-  background-color: var(--primary-color);
-  border-color: var(--primary-color);
-}
+        .nav-link:hover, .nav-link.active {
+            background-color: rgba(106, 17, 203, 0.2);
+            color: white;
+        }
 
-.btn-primary:hover {
-  background-color: #8a00e6;
-  border-color: #8a00e6;
-}
+        .main-content {
+            margin-left: var(--sidebar-width);
+            margin-top: var(--header-height);
+            padding: 20px;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
 
-.btn-secondary {
-  background-color: var(--background-lighter);
-  border-color: var(--background-lighter);
-  color: var(--text-primary);
-}
+        .main-content-expanded {
+            margin-left: var(--sidebar-collapsed-width);
+        }
 
-.btn-secondary:hover {
-  background-color: #4a4a4a;
-  border-color: #4a4a4a;
-}
+        .card {
+            background-color: var(--card-bg);
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
 
-.btn-danger {
-  background-color: var(--danger-color);
-  border-color: var(--danger-color);
-}
+        .card-header {
+            background-color: rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid var(--border-color);
+            padding: 15px 20px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-.btn-danger:hover {
-  background-color: #cc4444;
-  border-color: #cc4444;
-}
+        .card-body {
+            padding: 20px;
+        }
 
-/* Forms */
-.form-control {
-  background-color: var(--background-lighter);
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
-  padding: 0.5rem 0.75rem;
-  border-radius: 5px;
-  transition: all 0.3s ease;
-}
+        .table-responsive {
+            overflow-x: auto;
+        }
 
-.form-control:focus {
-  background-color: var(--background-lighter);
-  color: var(--text-primary);
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 0.25rem rgba(161, 0, 255, 0.25);
-}
+        .table {
+            color: var(--text-primary);
+            width: 100%;
+            background-color: #333333;
+        }
 
-.form-label {
-  color: var(--text-primary);
-  margin-bottom: 0.5rem;
-}
+        .table th, .table td {
+            vertical-align: middle;
+            border-color: #444444;
+            padding: 12px 15px;
+        }
 
-/* Badges */
-.badge {
-  font-weight: 500;
-  padding: 0.35em 0.65em;
-}
+        .table thead th {
+            background-color: rgba(106, 17, 203, 0.5);
+            border-bottom-width: 1px;
+            color: white;
+        }
 
-.badge-primary {
-  background-color: var(--primary-color);
-}
+        .table-hover tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
 
-.badge-secondary {
-  background-color: var(--background-lighter);
-}
+        .badge {
+            font-weight: 500;
+            padding: 5px 10px;
+            font-size: 0.85rem;
+        }
 
-.badge-success {
-  background-color: var(--success-color);
-}
+        .badge-primary {
+            background-color: var(--primary-color);
+        }
 
-.badge-danger {
-  background-color: var(--danger-color);
-}
+        .badge-success {
+            background-color: #28a745;
+        }
 
-.badge-warning {
-  background-color: var(--warning-color);
-  color: #000;
-}
+        .badge-warning {
+            background-color: #ffc107;
+            color: #212529;
+        }
 
-.badge-info {
-  background-color: var(--info-color);
-}
+        .badge-danger {
+            background-color: #dc3545;
+        }
 
-/* Alerts */
-.alert {
-  padding: 0.75rem 1.25rem;
-  border-radius: 5px;
-  margin-bottom: 1rem;
-}
+        .btn-action {
+            padding: 5px 10px;
+            margin: 0 3px;
+            font-size: 0.875rem;
+            border-radius: 4px;
+        }
 
-.alert-success {
-  background-color: rgba(0, 170, 85, 0.2);
-  border-color: rgba(0, 170, 85, 0.3);
-  color: #00ff88;
-}
+        .btn-add {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
 
-.alert-danger {
-  background-color: rgba(255, 85, 85, 0.2);
-  border-color: rgba(255, 85, 85, 0.3);
-  color: #ff8888;
-}
+        .btn-add:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
 
-.alert-info {
-  background-color: rgba(0, 183, 235, 0.2);
-  border-color: rgba(0, 183, 235, 0.3);
-  color: #00d4ff;
-}
+        .butterfly-img {
+            width: 30px;
+            height: 30px;
+            object-fit: contain;
+            filter: brightness(0) invert(1);
+        }
 
-/* Utility Classes */
-.text-muted {
-  color: var(--text-muted) !important;
-}
+        .status-active {
+            color: #28a745;
+            font-weight: 500;
+        }
 
-.bg-dark {
-  background-color: var(--background-dark) !important;
-}
+        .status-inactive {
+            color: #dc3545;
+            font-weight: 500;
+        }
 
-.bg-darker {
-  background-color: var(--background-darker) !important;
-}
+        .color-preview {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-right: 8px;
+            border: 1px solid #555;
+        }
 
-.bg-light {
-  background-color: var(--background-light) !important;
-}
+        .settings-tabs .nav-link {
+            color: var(--text-secondary);
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px 6px 0 0;
+        }
 
-.bg-lighter {
-  background-color: var(--background-lighter) !important;
-}
+        .settings-tabs .nav-link.active {
+            background-color: rgba(106, 17, 203, 0.3);
+            color: white;
+            border-bottom: 2px solid var(--primary-color);
+        }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
+        .settings-tabs .nav-link:hover:not(.active) {
+            background-color: rgba(106, 17, 203, 0.1);
+        }
 
-::-webkit-scrollbar-track {
-  background: var(--background-dark);
-}
+        .form-control, .form-select {
+            background-color: #333;
+            border: 1px solid #444;
+            color: white;
+        }
 
-::-webkit-scrollbar-thumb {
-  background: var(--background-lighter);
-  border-radius: 4px;
-}
+        .form-control:focus, .form-select:focus {
+            background-color: #444;
+            color: white;
+            border-color: #6a11cb;
+            box-shadow: 0 0 0 0.25rem rgba(106, 17, 203, 0.25);
+        }
 
-::-webkit-scrollbar-thumb:hover {
-  background: var(--primary-color);
-}
+        .btn-close-white {
+            filter: invert(1);
+        }
 
-/* Dashboard Specific Styles */
-.dashboard-container {
-  padding: 2rem;
-}
+        .priority-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
 
-.profile-card {
-  text-align: center;
-}
+        .priority-high {
+            background-color: #dc3545;
+        }
 
-.profile-img {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 3px solid var(--primary-color);
-  margin-bottom: 1rem;
-}
+        .priority-medium {
+            background-color: #ffc107;
+        }
 
-.stats-card {
-  text-align: center;
-  padding: 1.5rem;
-}
+        .priority-low {
+            background-color: #28a745;
+        }
 
-.stats-number {
-  font-size: 2rem;
-  font-weight: bold;
-  color: var(--primary-color);
-  margin-bottom: 0.5rem;
-}
+        /* Modal styling fixes */
+        .modal-content {
+            background-color: #2a2a2a;
+            color: white;
+        }
+        
+        .modal-header {
+            border-bottom: 1px solid #444;
+        }
+        
+        .modal-footer {
+            border-top: 1px solid #444;
+        }
+        
+        .modal-title {
+            color: white;
+        }
+        
+        .form-label {
+            color: white;
+        }
+        
+        .form-check-label {
+            color: white;
+        }
 
-.stats-label {
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-}
-
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-  .dashboard-container {
-    padding: 1rem;
-  }
-  
-  .card-body {
-    padding: 1rem;
-  }
-}
+        @media (max-width: 992px) {
+            .sidebar {
+                width: var(--sidebar-collapsed-width);
+            }
+            .sidebar .nav-link span {
+                display: none;
+            }
+            .sidebar .logotxt {
+                display: none;
+            }
+            .main-content {
+                margin-left: var(--sidebar-collapsed-width);
+            }
+        }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="#">Task Management</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/admin/dashboard">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="/admin/profile">Profile</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/admin/managers">Managers</a>
-                    </li>
-                </ul>
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/logout">Logout</a>
-                    </li>
-                </ul>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <div class="hamburger" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
             </div>
+            <img src="https://cdn-icons-png.flaticon.com/512/1149/1149168.png" alt="Butterfly" class="butterfly-img">
+            <div class="logotxt">TASKORD</div>
         </div>
+    </header>
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="dashboard.html" class="nav-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="usermanagement.html" class="nav-link">
+                    <i class="fas fa-users"></i>
+                    <span>User Management</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="projectmanagement.html" class="nav-link">
+                    <i class="fas fa-project-diagram"></i>
+                    <span>Project Management</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="taskmanagement.html" class="nav-link">
+                    <i class="fas fa-tasks"></i>
+                    <span>Task Management</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="systemsettings.html" class="nav-link active">
+                    <i class="fas fa-cog"></i>
+                    <span>System Settings</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" onclick="confirmLogout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </li>
+        </ul>
     </nav>
 
-    <div class="container mt-4">
-        <div class="row">
-            <div class="col-md-8 mx-auto">
-                <div class="card">
-                    <div class="card-header">
-                        <h4>Admin Profile</h4>
-                    </div>
-                    <div class="card-body">
-                        <div th:if="${param.success}" class="alert alert-success">
-                            Profile updated successfully!
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">System Settings</h5>
+            </div>
+            <div class="card-body">
+                <ul class="nav nav-tabs settings-tabs mb-4" id="settingsTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="categories-tab" data-bs-toggle="tab" data-bs-target="#categories" type="button" role="tab">Task Categories</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="labels-tab" data-bs-toggle="tab" data-bs-target="#labels" type="button" role="tab">Labels</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="priorities-tab" data-bs-toggle="tab" data-bs-target="#priorities" type="button" role="tab">Priorities</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="statuses-tab" data-bs-toggle="tab" data-bs-target="#statuses" type="button" role="tab">Statuses</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="notifications-tab" data-bs-toggle="tab" data-bs-target="#notifications" type="button" role="tab">Notifications</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab">General</button>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="settingsTabsContent">
+                    <!-- Task Categories Tab -->
+                    <div class="tab-pane fade show active" id="categories" role="tabpanel">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6>Manage Task Categories</h6>
+                            <button class="btn btn-add" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+                                <i class="fas fa-plus"></i> Add Category
+                            </button>
                         </div>
-                        <form th:action="@{/admin/profile/update}" th:object="${user}" method="post">
-                            <div class="mb-3">
-                                <label for="name" class="form-label">Name</label>
-                                <input type="text" class="form-control" id="name" th:field="*{name}" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="email" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="email" th:field="*{email}" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="password" class="form-label">New Password (leave blank to keep current)</label>
-                                <input type="password" class="form-control" id="password" th:field="*{password}">
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Role</label>
-                                <input type="text" class="form-control" th:value="*{role}" readonly>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Created At</label>
-                                <input type="text" class="form-control" th:value="*{#temporals.format(createdAt, 'yyyy-MM-dd HH:mm')}" readonly>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Updated At</label>
-                                <input type="text" class="form-control" th:value="*{#temporals.format(updatedAt, 'yyyy-MM-dd HH:mm')}" readonly>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Update Profile</button>
-                        </form>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="categoriesTable">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Category Name</th>
+                                        <th>Description</th>
+                                        <th>Color</th>
+                                        <th>Tasks Count</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Categories will be loaded dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
+
+                    <!-- Labels Tab -->
+                    <div class="tab-pane fade" id="labels" role="tabpanel">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6>Manage Task Labels</h6>
+                            <button class="btn btn-add" data-bs-toggle="modal" data-bs-target="#addLabelModal">
+                                <i class="fas fa-plus"></i> Add Label
+                            </button>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="labelsTable">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Label Name</th>
+                                        <th>Description</th>
+                                        <th>Color</th>
+                                        <th>Tasks Count</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Labels will be loaded dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Priorities Tab -->
+                    <div class="tab-pane fade" id="priorities" role="tabpanel">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6>Manage Task Priorities</h6>
+                            <button class="btn btn-add" data-bs-toggle="modal" data-bs-target="#addPriorityModal">
+                                <i class="fas fa-plus"></i> Add Priority
+                            </button>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="prioritiesTable">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Priority Name</th>
+                                        <th>Level</th>
+                                        <th>Color</th>
+                                        <th>Icon</th>
+                                        <th>Default</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Priorities will be loaded dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Statuses Tab -->
+                    <div class="tab-pane fade" id="statuses" role="tabpanel">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6>Manage Task Statuses</h6>
+                            <button class="btn btn-add" data-bs-toggle="modal" data-bs-target="#addStatusModal">
+                                <i class="fas fa-plus"></i> Add Status
+                            </button>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="statusesTable">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Status Name</th>
+                                        <th>Description</th>
+                                        <th>Color</th>
+                                        <th>Is Completion</th>
+                                        <th>Default</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Statuses will be loaded dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Notifications Tab -->
+                    <div class="tab-pane fade" id="notifications" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card mb-4">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">Notification Settings</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <form id="notificationSettingsForm">
+                                            <div class="mb-3">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
+                                                    <label class="form-check-label" for="emailNotifications">Enable Email Notifications</label>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="browserNotifications" checked>
+                                                    <label class="form-check-label" for="browserNotifications">Enable Browser Notifications</label>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="mobileNotifications" checked>
+                                                    <label class="form-check-label" for="mobileNotifications">Enable Mobile Notifications</label>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="notificationFrequency" class="form-label">Notification Frequency</label>
+                                                <select class="form-select" id="notificationFrequency">
+                                                    <option value="immediate">Immediately</option>
+                                                    <option value="hourly">Hourly Digest</option>
+                                                    <option value="daily">Daily Digest</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Notify me for:</label>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="taskAssigned" checked>
+                                                    <label class="form-check-label" for="taskAssigned">Task assigned to me</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="taskCompleted" checked>
+                                                    <label class="form-check-label" for="taskCompleted">Task completed</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="taskOverdue" checked>
+                                                    <label class="form-check-label" for="taskOverdue">Task overdue</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="mention" checked>
+                                                    <label class="form-check-label" for="mention">When I'm mentioned</label>
+                                                </div>
+                                            </div>
+                                            <button type="button" class="btn btn-primary" onclick="saveNotificationSettings()">Save Settings</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">Notification Templates</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <form id="notificationTemplatesForm">
+                                            <div class="mb-3">
+                                                <label for="taskAssignmentTemplate" class="form-label">Task Assignment Template</label>
+                                                <textarea class="form-control" id="taskAssignmentTemplate" rows="3">You have been assigned a new task: {task_name} in project {project_name}.</textarea>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="taskCompletionTemplate" class="form-label">Task Completion Template</label>
+                                                <textarea class="form-control" id="taskCompletionTemplate" rows="3">The task {task_name} has been marked as completed by {user_name}.</textarea>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="taskOverdueTemplate" class="form-label">Task Overdue Template</label>
+                                                <textarea class="form-control" id="taskOverdueTemplate" rows="3">The task {task_name} is now overdue. Please take action.</textarea>
+                                            </div>
+                                            <button type="button" class="btn btn-primary" onclick="saveNotificationTemplates()">Save Templates</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- General Settings Tab -->
+                    <div class="tab-pane fade" id="general" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card mb-4">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">System Preferences</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <form id="systemPreferencesForm">
+                                            <div class="mb-3">
+                                                <label for="timezone" class="form-label">Timezone</label>
+                                                <select class="form-select" id="timezone">
+                                                    <option value="UTC">UTC</option>
+                                                    <option value="EST">Eastern Time (EST)</option>
+                                                    <option value="PST">Pacific Time (PST)</option>
+                                                    <option value="GMT">GMT</option>
+                                                    <option value="CET">Central European Time (CET)</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="dateFormat" class="form-label">Date Format</label>
+                                                <select class="form-select" id="dateFormat">
+                                                    <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                                                    <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                                                    <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="timeFormat" class="form-label">Time Format</label>
+                                                <select class="form-select" id="timeFormat">
+                                                    <option value="12h">12-hour format</option>
+                                                    <option value="24h">24-hour format</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="itemsPerPage" class="form-label">Items Per Page</label>
+                                                <select class="form-select" id="itemsPerPage">
+                                                    <option value="10">10</option>
+                                                    <option value="25">25</option>
+                                                    <option value="50">50</option>
+                                                    <option value="100">100</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="darkMode" checked>
+                                                    <label class="form-check-label" for="darkMode">Dark Mode</label>
+                                                </div>
+                                            </div>
+                                            <button type="button" class="btn btn-primary" onclick="saveSystemPreferences()">Save Preferences</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card mb-4">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">Task Defaults</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <form id="taskDefaultsForm">
+                                            <div class="mb-3">
+                                                <label for="defaultPriority" class="form-label">Default Priority</label>
+                                                <select class="form-select" id="defaultPriority">
+                                                    <option value="1">Low</option>
+                                                    <option value="2" selected>Medium</option>
+                                                    <option value="3">High</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="defaultStatus" class="form-label">Default Status</label>
+                                                <select class="form-select" id="defaultStatus">
+                                                    <option value="1">Not Started</option>
+                                                    <option value="2">In Progress</option>
+                                                    <option value="3">On Hold</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="defaultAssignee" class="form-label">Default Assignee</label>
+                                                <select class="form-select" id="defaultAssignee">
+                                                    <option value="0">Unassigned</option>
+                                                    <option value="1">Current User</option>
+                                                    <option value="2">Project Manager</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="enableTaskDependencies" checked>
+                                                    <label class="form-check-label" for="enableTaskDependencies">Enable Task Dependencies</label>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="enableTimeTracking" checked>
+                                                    <label class="form-check-label" for="enableTimeTracking">Enable Time Tracking</label>
+                                                </div>
+                                            </div>
+                                            <button type="button" class="btn btn-primary" onclick="saveTaskDefaults()">Save Defaults</button>
+                                        </form>
+                                    </div>
+                                </div>
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">System Information</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-2"><strong>Version:</strong> TASKORD 2.1.0</div>
+                                        <div class="mb-2"><strong>Last Updated:</strong> June 15, 2023</div>
+                                        <div class="mb-2"><strong>License:</strong> Enterprise Edition</div>
+                                        <div class="mb-2"><strong>Users:</strong> 24 active / 50 licensed</div>
+                                        <div class="mb-2"><strong>Storage:</strong> 1.2 GB used / 10 GB available</div>
+                                        <hr>
+                                        <button class="btn btn-sm btn-primary me-2">Check for Updates</button>
+                                        <button class="btn btn-sm btn-secondary">System Diagnostics</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add Category Modal -->
+    <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addCategoryModalLabel">Add Task Category</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="categoryForm">
+                        <div class="mb-3">
+                            <label for="categoryName" class="form-label">Category Name *</label>
+                            <input type="text" class="form-control" id="categoryName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="categoryDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="categoryDescription" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="categoryColor" class="form-label">Color *</label>
+                            <input type="color" class="form-control form-control-color" id="categoryColor" value="#6a11cb" title="Choose color">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveCategoryBtn">Save Category</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Edit Category Modal -->
+    <div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editCategoryModalLabel">Edit Task Category</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editCategoryForm">
+                        <input type="hidden" id="editCategoryId">
+                        <div class="mb-3">
+                            <label for="editCategoryName" class="form-label">Category Name *</label>
+                            <input type="text" class="form-control" id="editCategoryName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editCategoryDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="editCategoryDescription" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editCategoryColor" class="form-label">Color *</label>
+                            <input type="color" class="form-control form-control-color" id="editCategoryColor" value="#6a11cb" title="Choose color">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="updateCategoryBtn">Update Category</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Label Modal -->
+    <div class="modal fade" id="addLabelModal" tabindex="-1" aria-labelledby="addLabelModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addLabelModalLabel">Add Task Label</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="labelForm">
+                        <div class="mb-3">
+                            <label for="labelName" class="form-label">Label Name *</label>
+                            <input type="text" class="form-control" id="labelName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="labelDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="labelDescription" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="labelColor" class="form-label">Color *</label>
+                            <input type="color" class="form-control form-control-color" id="labelColor" value="#2575fc" title="Choose color">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveLabelBtn">Save Label</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Label Modal -->
+    <div class="modal fade" id="editLabelModal" tabindex="-1" aria-labelledby="editLabelModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editLabelModalLabel">Edit Task Label</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editLabelForm">
+                        <input type="hidden" id="editLabelId">
+                        <div class="mb-3">
+                            <label for="editLabelName" class="form-label">Label Name *</label>
+                            <input type="text" class="form-control" id="editLabelName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editLabelDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="editLabelDescription" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editLabelColor" class="form-label">Color *</label>
+                            <input type="color" class="form-control form-control-color" id="editLabelColor" value="#2575fc" title="Choose color">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="updateLabelBtn">Update Label</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Priority Modal -->
+    <div class="modal fade" id="addPriorityModal" tabindex="-1" aria-labelledby="addPriorityModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addPriorityModalLabel">Add Task Priority</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="priorityForm">
+                        <div class="mb-3">
+                            <label for="priorityName" class="form-label">Priority Name *</label>
+                            <input type="text" class="form-control" id="priorityName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="priorityLevel" class="form-label">Level *</label>
+                            <select class="form-select" id="priorityLevel" required>
+                                <option value="1">Low</option>
+                                <option value="2">Medium</option>
+                                <option value="3">High</option>
+                                <option value="4">Critical</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="priorityColor" class="form-label">Color *</label>
+                            <input type="color" class="form-control form-control-color" id="priorityColor" value="#dc3545" title="Choose color">
+                        </div>
+                        <div class="mb-3">
+                            <label for="priorityIcon" class="form-label">Icon *</label>
+                            <select class="form-select" id="priorityIcon" required>
+                                <option value="fa-arrow-down">Low (Down Arrow)</option>
+                                <option value="fa-equals">Medium (Equals)</option>
+                                <option value="fa-arrow-up">High (Up Arrow)</option>
+                                <option value="fa-exclamation">Critical (Exclamation)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="priorityDefault">
+                                <label class="form-check-label" for="priorityDefault">Set as default priority</label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="savePriorityBtn">Save Priority</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Priority Modal -->
+    <div class="modal fade" id="editPriorityModal" tabindex="-1" aria-labelledby="editPriorityModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editPriorityModalLabel">Edit Task Priority</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editPriorityForm">
+                        <input type="hidden" id="editPriorityId">
+                        <div class="mb-3">
+                            <label for="editPriorityName" class="form-label">Priority Name *</label>
+                            <input type="text" class="form-control" id="editPriorityName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editPriorityLevel" class="form-label">Level *</label>
+                            <select class="form-select" id="editPriorityLevel" required>
+                                <option value="1">Low</option>
+                                <option value="2">Medium</option>
+                                <option value="3">High</option>
+                                <option value="4">Critical</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editPriorityColor" class="form-label">Color *</label>
+                            <input type="color" class="form-control form-control-color" id="editPriorityColor" value="#dc3545" title="Choose color">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editPriorityIcon" class="form-label">Icon *</label>
+                            <select class="form-select" id="editPriorityIcon" required>
+                                <option value="fa-arrow-down">Low (Down Arrow)</option>
+                                <option value="fa-equals">Medium (Equals)</option>
+                                <option value="fa-arrow-up">High (Up Arrow)</option>
+                                <option value="fa-exclamation">Critical (Exclamation)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="editPriorityDefault">
+                                <label class="form-check-label" for="editPriorityDefault">Set as default priority</label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="updatePriorityBtn">Update Priority</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Status Modal -->
+    <div class="modal fade" id="addStatusModal" tabindex="-1" aria-labelledby="addStatusModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addStatusModalLabel">Add Task Status</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="statusForm">
+                        <div class="mb-3">
+                            <label for="statusName" class="form-label">Status Name *</label>
+                            <input type="text" class="form-control" id="statusName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="statusDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="statusDescription" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="statusColor" class="form-label">Color *</label>
+                            <input type="color" class="form-control form-control-color" id="statusColor" value="#28a745" title="Choose color">
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="statusCompletion">
+                                <label class="form-check-label" for="statusCompletion">Mark tasks as completed when this status is set</label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="statusDefault">
+                                <label class="form-check-label" for="statusDefault">Set as default status for new tasks</label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveStatusBtn">Save Status</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Status Modal -->
+    <div class="modal fade" id="editStatusModal" tabindex="-1" aria-labelledby="editStatusModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editStatusModalLabel">Edit Task Status</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editStatusForm">
+                        <input type="hidden" id="editStatusId">
+                        <div class="mb-3">
+                            <label for="editStatusName" class="form-label">Status Name *</label>
+                            <input type="text" class="form-control" id="editStatusName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editStatusDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="editStatusDescription" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editStatusColor" class="form-label">Color *</label>
+                            <input type="color" class="form-control form-control-color" id="editStatusColor" value="#28a745" title="Choose color">
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="editStatusCompletion">
+                                <label class="form-check-label" for="editStatusCompletion">Mark tasks as completed when this status is set</label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="editStatusDefault">
+                                <label class="form-check-label" for="editStatusDefault">Set as default status for new tasks</label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="updateStatusBtn">Update Status</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Toastr for notifications -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script>
+        // Sample data for system settings
+        let categories = [
+            { id: 1, name: "Development", description: "Software development tasks", color: "#6a11cb", tasksCount: 24 },
+            { id: 2, name: "Design", description: "UI/UX design tasks", color: "#2575fc", tasksCount: 18 },
+            { id: 3, name: "Testing", description: "Quality assurance tasks", color: "#28a745", tasksCount: 12 },
+            { id: 4, name: "Documentation", description: "Project documentation tasks", color: "#ffc107", tasksCount: 8 }
+        ];
+
+        let labels = [
+            { id: 1, name: "Bug", description: "Issues that need fixing", color: "#dc3545", tasksCount: 15 },
+            { id: 2, name: "Feature", description: "New functionality to implement", color: "#28a745", tasksCount: 22 },
+            { id: 3, name: "Enhancement", description: "Improvements to existing features", color: "#17a2b8", tasksCount: 14 },
+            { id: 4, name: "Urgent", description: "High priority items", color: "#fd7e14", tasksCount: 7 }
+        ];
+
+        let priorities = [
+            { id: 1, name: "Low", level: 1, color: "#28a745", icon: "fa-arrow-down", isDefault: false },
+            { id: 2, name: "Medium", level: 2, color: "#ffc107", icon: "fa-equals", isDefault: true },
+            { id: 3, name: "High", level: 3, color: "#fd7e14", icon: "fa-arrow-up", isDefault: false },
+            { id: 4, name: "Critical", level: 4, color: "#dc3545", icon: "fa-exclamation", isDefault: false }
+        ];
+
+        let statuses = [
+            { id: 1, name: "Not Started", description: "Task has not been started", color: "#6c757d", isCompletion: false, isDefault: true },
+            { id: 2, name: "In Progress", description: "Task is currently being worked on", color: "#17a2b8", isCompletion: false, isDefault: false },
+            { id: 3, name: "On Hold", description: "Task is temporarily paused", color: "#ffc107", isCompletion: false, isDefault: false },
+            { id: 4, name: "Completed", description: "Task has been finished", color: "#28a745", isCompletion: true, isDefault: false }
+        ];
+
+        // DOM elements
+        const categoriesTable = document.getElementById('categoriesTable').getElementsByTagName('tbody')[0];
+        const labelsTable = document.getElementById('labelsTable').getElementsByTagName('tbody')[0];
+        const prioritiesTable = document.getElementById('prioritiesTable').getElementsByTagName('tbody')[0];
+        const statusesTable = document.getElementById('statusesTable').getElementsByTagName('tbody')[0];
+
+        // Initialize Toastr
+        toastr.options = {
+            "closeButton": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "timeOut": "5000"
+        };
+
+        // Toggle sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            sidebar.classList.toggle('sidebar-collapsed');
+            mainContent.classList.toggle('main-content-expanded');
+        }
+
+        // Confirm logout
+        function confirmLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Render categories table
+        function renderCategories() {
+            categoriesTable.innerHTML = '';
+            categories.forEach((category, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${category.name}</td>
+                    <td>${category.description || '-'}</td>
+                    <td><span class="color-preview" style="background-color: ${category.color};"></span> ${category.color}</td>
+                    <td><span class="badge badge-primary">${category.tasksCount}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-primary btn-action edit-category-btn" data-id="${category.id}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger btn-action delete-category-btn" data-id="${category.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                categoriesTable.appendChild(row);
+            });
+
+            // Add event listeners to edit and delete buttons
+            document.querySelectorAll('.edit-category-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const categoryId = parseInt(this.getAttribute('data-id'));
+                    editCategory(categoryId);
+                });
+            });
+
+            document.querySelectorAll('.delete-category-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const categoryId = parseInt(this.getAttribute('data-id'));
+                    deleteCategory(categoryId);
+                });
+            });
+        }
+
+        // Render labels table
+        function renderLabels() {
+            labelsTable.innerHTML = '';
+            labels.forEach((label, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${label.name}</td>
+                    <td>${label.description || '-'}</td>
+                    <td><span class="color-preview" style="background-color: ${label.color};"></span> ${label.color}</td>
+                    <td><span class="badge badge-primary">${label.tasksCount}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-primary btn-action edit-label-btn" data-id="${label.id}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger btn-action delete-label-btn" data-id="${label.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                labelsTable.appendChild(row);
+            });
+
+            // Add event listeners to edit and delete buttons
+            document.querySelectorAll('.edit-label-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const labelId = parseInt(this.getAttribute('data-id'));
+                    editLabel(labelId);
+                });
+            });
+
+            document.querySelectorAll('.delete-label-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const labelId = parseInt(this.getAttribute('data-id'));
+                    deleteLabel(labelId);
+                });
+            });
+        }
+
+        // Render priorities table
+        function renderPriorities() {
+            prioritiesTable.innerHTML = '';
+            priorities.forEach((priority, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${priority.name}</td>
+                    <td>${priority.level}</td>
+                    <td><span class="color-preview" style="background-color: ${priority.color};"></span> ${priority.color}</td>
+                    <td><i class="fas ${priority.icon}"></i></td>
+                    <td>${priority.isDefault ? '<span class="badge badge-success">Yes</span>' : '<span class="badge badge-secondary">No</span>'}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary btn-action edit-priority-btn" data-id="${priority.id}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger btn-action delete-priority-btn" data-id="${priority.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                prioritiesTable.appendChild(row);
+            });
+
+            // Add event listeners to edit and delete buttons
+            document.querySelectorAll('.edit-priority-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const priorityId = parseInt(this.getAttribute('data-id'));
+                    editPriority(priorityId);
+                });
+            });
+
+            document.querySelectorAll('.delete-priority-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const priorityId = parseInt(this.getAttribute('data-id'));
+                    deletePriority(priorityId);
+                });
+            });
+        }
+
+        // Render statuses table
+        function renderStatuses() {
+            statusesTable.innerHTML = '';
+            statuses.forEach((status, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${status.name}</td>
+                    <td>${status.description || '-'}</td>
+                    <td><span class="color-preview" style="background-color: ${status.color};"></span> ${status.color}</td>
+                    <td>${status.isCompletion ? '<span class="badge badge-success">Yes</span>' : '<span class="badge badge-secondary">No</span>'}</td>
+                    <td>${status.isDefault ? '<span class="badge badge-success">Yes</span>' : '<span class="badge badge-secondary">No</span>'}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary btn-action edit-status-btn" data-id="${status.id}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger btn-action delete-status-btn" data-id="${status.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                statusesTable.appendChild(row);
+            });
+
+            // Add event listeners to edit and delete buttons
+            document.querySelectorAll('.edit-status-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const statusId = parseInt(this.getAttribute('data-id'));
+                    editStatus(statusId);
+                });
+            });
+
+            document.querySelectorAll('.delete-status-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const statusId = parseInt(this.getAttribute('data-id'));
+                    deleteStatus(statusId);
+                });
+            });
+        }
+
+        // Add new category
+        function addCategory() {
+            const categoryName = document.getElementById('categoryName').value;
+            const categoryDescription = document.getElementById('categoryDescription').value;
+            const categoryColor = document.getElementById('categoryColor').value;
+
+            if (!categoryName) {
+                toastr.error('Category name is required');
+                return;
+            }
+
+            const newCategory = {
+                id: categories.length > 0 ? Math.max(...categories.map(c => c.id)) + 1 : 1,
+                name: categoryName,
+                description: categoryDescription,
+                color: categoryColor,
+                tasksCount: 0
+            };
+
+            categories.push(newCategory);
+            renderCategories();
+            toastr.success('Category added successfully');
+
+            // Close modal and reset form
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addCategoryModal'));
+            modal.hide();
+            document.getElementById('categoryForm').reset();
+        }
+
+        // Edit category
+        function editCategory(categoryId) {
+            const category = categories.find(c => c.id === categoryId);
+            if (!category) return;
+
+            document.getElementById('editCategoryId').value = category.id;
+            document.getElementById('editCategoryName').value = category.name;
+            document.getElementById('editCategoryDescription').value = category.description || '';
+            document.getElementById('editCategoryColor').value = category.color;
+
+            const modal = new bootstrap.Modal(document.getElementById('editCategoryModal'));
+            modal.show();
+        }
+
+        // Update category
+        function updateCategory() {
+            const categoryId = parseInt(document.getElementById('editCategoryId').value);
+            const category = categories.find(c => c.id === categoryId);
+            if (!category) return;
+
+            category.name = document.getElementById('editCategoryName').value;
+            category.description = document.getElementById('editCategoryDescription').value;
+            category.color = document.getElementById('editCategoryColor').value;
+
+            renderCategories();
+            toastr.success('Category updated successfully');
+
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editCategoryModal'));
+            modal.hide();
+        }
+
+        // Delete category
+        function deleteCategory(categoryId) {
+            if (confirm('Are you sure you want to delete this category? This action cannot be undone.')) {
+                categories = categories.filter(c => c.id !== categoryId);
+                renderCategories();
+                toastr.success('Category deleted successfully');
+            }
+        }
+
+        // Add new label
+        function addLabel() {
+            const labelName = document.getElementById('labelName').value;
+            const labelDescription = document.getElementById('labelDescription').value;
+            const labelColor = document.getElementById('labelColor').value;
+
+            if (!labelName) {
+                toastr.error('Label name is required');
+                return;
+            }
+
+            const newLabel = {
+                id: labels.length > 0 ? Math.max(...labels.map(l => l.id)) + 1 : 1,
+                name: labelName,
+                description: labelDescription,
+                color: labelColor,
+                tasksCount: 0
+            };
+
+            labels.push(newLabel);
+            renderLabels();
+            toastr.success('Label added successfully');
+
+            // Close modal and reset form
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addLabelModal'));
+            modal.hide();
+            document.getElementById('labelForm').reset();
+        }
+
+        // Edit label
+        function editLabel(labelId) {
+            const label = labels.find(l => l.id === labelId);
+            if (!label) return;
+
+            document.getElementById('editLabelId').value = label.id;
+            document.getElementById('editLabelName').value = label.name;
+            document.getElementById('editLabelDescription').value = label.description || '';
+            document.getElementById('editLabelColor').value = label.color;
+
+            const modal = new bootstrap.Modal(document.getElementById('editLabelModal'));
+            modal.show();
+        }
+
+        // Update label
+        function updateLabel() {
+            const labelId = parseInt(document.getElementById('editLabelId').value);
+            const label = labels.find(l => l.id === labelId);
+            if (!label) return;
+
+            label.name = document.getElementById('editLabelName').value;
+            label.description = document.getElementById('editLabelDescription').value;
+            label.color = document.getElementById('editLabelColor').value;
+
+            renderLabels();
+            toastr.success('Label updated successfully');
+
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editLabelModal'));
+            modal.hide();
+        }
+
+        // Delete label
+        function deleteLabel(labelId) {
+            if (confirm('Are you sure you want to delete this label? This action cannot be undone.')) {
+                labels = labels.filter(l => l.id !== labelId);
+                renderLabels();
+                toastr.success('Label deleted successfully');
+            }
+        }
+
+        // Add new priority
+        function addPriority() {
+            const priorityName = document.getElementById('priorityName').value;
+            const priorityLevel = document.getElementById('priorityLevel').value;
+            const priorityColor = document.getElementById('priorityColor').value;
+            const priorityIcon = document.getElementById('priorityIcon').value;
+            const priorityDefault = document.getElementById('priorityDefault').checked;
+
+            if (!priorityName) {
+                toastr.error('Priority name is required');
+                return;
+            }
+
+            // If this is being set as default, remove default from others
+            if (priorityDefault) {
+                priorities.forEach(p => p.isDefault = false);
+            }
+
+            const newPriority = {
+                id: priorities.length > 0 ? Math.max(...priorities.map(p => p.id)) + 1 : 1,
+                name: priorityName,
+                level: parseInt(priorityLevel),
+                color: priorityColor,
+                icon: priorityIcon,
+                isDefault: priorityDefault
+            };
+
+            priorities.push(newPriority);
+            renderPriorities();
+            toastr.success('Priority added successfully');
+
+            // Close modal and reset form
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addPriorityModal'));
+            modal.hide();
+            document.getElementById('priorityForm').reset();
+        }
+
+        // Edit priority
+        function editPriority(priorityId) {
+            const priority = priorities.find(p => p.id === priorityId);
+            if (!priority) return;
+
+            document.getElementById('editPriorityId').value = priority.id;
+            document.getElementById('editPriorityName').value = priority.name;
+            document.getElementById('editPriorityLevel').value = priority.level;
+            document.getElementById('editPriorityColor').value = priority.color;
+            document.getElementById('editPriorityIcon').value = priority.icon;
+            document.getElementById('editPriorityDefault').checked = priority.isDefault;
+
+            const modal = new bootstrap.Modal(document.getElementById('editPriorityModal'));
+            modal.show();
+        }
+
+        // Update priority
+        function updatePriority() {
+            const priorityId = parseInt(document.getElementById('editPriorityId').value);
+            const priority = priorities.find(p => p.id === priorityId);
+            if (!priority) return;
+
+            const priorityDefault = document.getElementById('editPriorityDefault').checked;
+
+            // If this is being set as default, remove default from others
+            if (priorityDefault) {
+                priorities.forEach(p => p.isDefault = false);
+            }
+
+            priority.name = document.getElementById('editPriorityName').value;
+            priority.level = parseInt(document.getElementById('editPriorityLevel').value);
+            priority.color = document.getElementById('editPriorityColor').value;
+            priority.icon = document.getElementById('editPriorityIcon').value;
+            priority.isDefault = priorityDefault;
+
+            renderPriorities();
+            toastr.success('Priority updated successfully');
+
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editPriorityModal'));
+            modal.hide();
+        }
+
+        // Delete priority
+        function deletePriority(priorityId) {
+            const priority = priorities.find(p => p.id === priorityId);
+            if (!priority) return;
+
+            if (priority.isDefault) {
+                toastr.error('Cannot delete the default priority. Set another priority as default first.');
+                return;
+            }
+
+            if (confirm('Are you sure you want to delete this priority? This action cannot be undone.')) {
+                priorities = priorities.filter(p => p.id !== priorityId);
+                renderPriorities();
+                toastr.success('Priority deleted successfully');
+            }
+        }
+
+        // Add new status
+        function addStatus() {
+            const statusName = document.getElementById('statusName').value;
+            const statusDescription = document.getElementById('statusDescription').value;
+            const statusColor = document.getElementById('statusColor').value;
+            const statusCompletion = document.getElementById('statusCompletion').checked;
+            const statusDefault = document.getElementById('statusDefault').checked;
+
+            if (!statusName) {
+                toastr.error('Status name is required');
+                return;
+            }
+
+            // If this is being set as default, remove default from others
+            if (statusDefault) {
+                statuses.forEach(s => s.isDefault = false);
+            }
+
+            const newStatus = {
+                id: statuses.length > 0 ? Math.max(...statuses.map(s => s.id)) + 1 : 1,
+                name: statusName,
+                description: statusDescription,
+                color: statusColor,
+                isCompletion: statusCompletion,
+                isDefault: statusDefault
+            };
+
+            statuses.push(newStatus);
+            renderStatuses();
+            toastr.success('Status added successfully');
+
+            // Close modal and reset form
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addStatusModal'));
+            modal.hide();
+            document.getElementById('statusForm').reset();
+        }
+
+        // Edit status
+        function editStatus(statusId) {
+            const status = statuses.find(s => s.id === statusId);
+            if (!status) return;
+
+            document.getElementById('editStatusId').value = status.id;
+            document.getElementById('editStatusName').value = status.name;
+            document.getElementById('editStatusDescription').value = status.description || '';
+            document.getElementById('editStatusColor').value = status.color;
+            document.getElementById('editStatusCompletion').checked = status.isCompletion;
+            document.getElementById('editStatusDefault').checked = status.isDefault;
+
+            const modal = new bootstrap.Modal(document.getElementById('editStatusModal'));
+            modal.show();
+        }
+
+        // Update status
+        function updateStatus() {
+            const statusId = parseInt(document.getElementById('editStatusId').value);
+            const status = statuses.find(s => s.id === statusId);
+            if (!status) return;
+
+            const statusDefault = document.getElementById('editStatusDefault').checked;
+
+            // If this is being set as default, remove default from others
+            if (statusDefault) {
+                statuses.forEach(s => s.isDefault = false);
+            }
+
+            status.name = document.getElementById('editStatusName').value;
+            status.description = document.getElementById('editStatusDescription').value;
+            status.color = document.getElementById('editStatusColor').value;
+            status.isCompletion = document.getElementById('editStatusCompletion').checked;
+            status.isDefault = statusDefault;
+
+            renderStatuses();
+            toastr.success('Status updated successfully');
+
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editStatusModal'));
+            modal.hide();
+        }
+
+        // Delete status
+        function deleteStatus(statusId) {
+            const status = statuses.find(s => s.id === statusId);
+            if (!status) return;
+
+            if (status.isDefault) {
+                toastr.error('Cannot delete the default status. Set another status as default first.');
+                return;
+            }
+
+            if (confirm('Are you sure you want to delete this status? This action cannot be undone.')) {
+                statuses = statuses.filter(s => s.id !== statusId);
+                renderStatuses();
+                toastr.success('Status deleted successfully');
+            }
+        }
+
+        // Save notification settings
+        function saveNotificationSettings() {
+            // In a real app, you would save these to your backend
+            toastr.success('Notification settings saved successfully');
+        }
+
+        // Save notification templates
+        function saveNotificationTemplates() {
+            // In a real app, you would save these to your backend
+            toastr.success('Notification templates saved successfully');
+        }
+
+        // Save system preferences
+        function saveSystemPreferences() {
+            // In a real app, you would save these to your backend
+            toastr.success('System preferences saved successfully');
+        }
+
+        // Save task defaults
+        function saveTaskDefaults() {
+            // In a real app, you would save these to your backend
+            toastr.success('Task defaults saved successfully');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Render all tables
+            renderCategories();
+            renderLabels();
+            renderPriorities();
+            renderStatuses();
+
+            // Add event listeners for form submissions
+            document.getElementById('saveCategoryBtn').addEventListener('click', addCategory);
+            document.getElementById('updateCategoryBtn').addEventListener('click', updateCategory);
+            document.getElementById('saveLabelBtn').addEventListener('click', addLabel);
+            document.getElementById('updateLabelBtn').addEventListener('click', updateLabel);
+            document.getElementById('savePriorityBtn').addEventListener('click', addPriority);
+            document.getElementById('updatePriorityBtn').addEventListener('click', updatePriority);
+            document.getElementById('saveStatusBtn').addEventListener('click', addStatus);
+            document.getElementById('updateStatusBtn').addEventListener('click', updateStatus);
+
+            // Initialize tooltips
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+    </script>
 </body>
 </html>
