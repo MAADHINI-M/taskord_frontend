@@ -1,0 +1,386 @@
+<!-- src/main/resources/templates/admin/profile.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link th:href="@{/css/dark-theme.css}" rel="stylesheet">
+    <style>
+        /* src/main/resources/static/css/dark-theme.css */
+:root {
+  --primary-color: #a100ff;
+  --secondary-color: #6a00ff;
+  --background-dark: #1a1a1a;
+  --background-darker: #121212;
+  --background-light: #2a2a2a;
+  --background-lighter: #3a3a3a;
+  --text-primary: #ffffff;
+  --text-secondary: #cccccc;
+  --text-muted: #999999;
+  --success-color: #00aa55;
+  --warning-color: #ffaa00;
+  --danger-color: #ff5555;
+  --info-color: #00b7eb;
+  --border-color: #444444;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background-color: var(--background-dark);
+  color: var(--text-primary);
+  min-height: 100vh;
+}
+
+/* Navigation */
+.navbar {
+  background-color: var(--background-light);
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.8rem 1.5rem;
+}
+
+.navbar-brand {
+  color: var(--primary-color);
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.nav-link {
+  color: var(--text-secondary);
+  padding: 0.5rem 1rem;
+  transition: all 0.3s ease;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  color: var(--primary-color);
+}
+
+/* Cards */
+.card {
+  background-color: var(--background-light);
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.5rem;
+}
+
+.card-header {
+  background-color: var(--background-lighter);
+  border-bottom: 1px solid var(--border-color);
+  padding: 1rem 1.5rem;
+  font-weight: 500;
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+/* Tables */
+.table {
+  color: var(--text-primary);
+  margin-bottom: 0;
+}
+
+.table th {
+  background-color: var(--background-lighter);
+  border-bottom: 2px solid var(--border-color);
+  font-weight: 600;
+}
+
+.table td, .table th {
+  border-top: 1px solid var(--border-color);
+  padding: 0.75rem 1rem;
+  vertical-align: middle;
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(161, 0, 255, 0.1);
+}
+
+/* Buttons */
+.btn {
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+  background-color: #8a00e6;
+  border-color: #8a00e6;
+}
+
+.btn-secondary {
+  background-color: var(--background-lighter);
+  border-color: var(--background-lighter);
+  color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+  background-color: #4a4a4a;
+  border-color: #4a4a4a;
+}
+
+.btn-danger {
+  background-color: var(--danger-color);
+  border-color: var(--danger-color);
+}
+
+.btn-danger:hover {
+  background-color: #cc4444;
+  border-color: #cc4444;
+}
+
+/* Forms */
+.form-control {
+  background-color: var(--background-lighter);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 0.5rem 0.75rem;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus {
+  background-color: var(--background-lighter);
+  color: var(--text-primary);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.25rem rgba(161, 0, 255, 0.25);
+}
+
+.form-label {
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+/* Badges */
+.badge {
+  font-weight: 500;
+  padding: 0.35em 0.65em;
+}
+
+.badge-primary {
+  background-color: var(--primary-color);
+}
+
+.badge-secondary {
+  background-color: var(--background-lighter);
+}
+
+.badge-success {
+  background-color: var(--success-color);
+}
+
+.badge-danger {
+  background-color: var(--danger-color);
+}
+
+.badge-warning {
+  background-color: var(--warning-color);
+  color: #000;
+}
+
+.badge-info {
+  background-color: var(--info-color);
+}
+
+/* Alerts */
+.alert {
+  padding: 0.75rem 1.25rem;
+  border-radius: 5px;
+  margin-bottom: 1rem;
+}
+
+.alert-success {
+  background-color: rgba(0, 170, 85, 0.2);
+  border-color: rgba(0, 170, 85, 0.3);
+  color: #00ff88;
+}
+
+.alert-danger {
+  background-color: rgba(255, 85, 85, 0.2);
+  border-color: rgba(255, 85, 85, 0.3);
+  color: #ff8888;
+}
+
+.alert-info {
+  background-color: rgba(0, 183, 235, 0.2);
+  border-color: rgba(0, 183, 235, 0.3);
+  color: #00d4ff;
+}
+
+/* Utility Classes */
+.text-muted {
+  color: var(--text-muted) !important;
+}
+
+.bg-dark {
+  background-color: var(--background-dark) !important;
+}
+
+.bg-darker {
+  background-color: var(--background-darker) !important;
+}
+
+.bg-light {
+  background-color: var(--background-light) !important;
+}
+
+.bg-lighter {
+  background-color: var(--background-lighter) !important;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--background-lighter);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-color);
+}
+
+/* Dashboard Specific Styles */
+.dashboard-container {
+  padding: 2rem;
+}
+
+.profile-card {
+  text-align: center;
+}
+
+.profile-img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--primary-color);
+  margin-bottom: 1rem;
+}
+
+.stats-card {
+  text-align: center;
+  padding: 1.5rem;
+}
+
+.stats-number {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+.stats-label {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 1rem;
+  }
+  
+  .card-body {
+    padding: 1rem;
+  }
+}
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">Task Management</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/admin/profile">Profile</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/managers">Managers</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-8 mx-auto">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Admin Profile</h4>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${param.success}" class="alert alert-success">
+                            Profile updated successfully!
+                        </div>
+                        <form th:action="@{/admin/profile/update}" th:object="${user}" method="post">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Name</label>
+                                <input type="text" class="form-control" id="name" th:field="*{name}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" th:field="*{email}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">New Password (leave blank to keep current)</label>
+                                <input type="password" class="form-control" id="password" th:field="*{password}">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Role</label>
+                                <input type="text" class="form-control" th:value="*{role}" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Created At</label>
+                                <input type="text" class="form-control" th:value="*{#temporals.format(createdAt, 'yyyy-MM-dd HH:mm')}" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Updated At</label>
+                                <input type="text" class="form-control" th:value="*{#temporals.format(updatedAt, 'yyyy-MM-dd HH:mm')}" readonly>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Update Profile</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
