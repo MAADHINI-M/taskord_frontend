@@ -875,17 +875,17 @@
             });
         });
 
-        // Initialize analytics charts
+        // Initialize analytics charts with sample data
         function initializeCharts() {
             // Task Completion Rate Chart (Line Chart)
             const completionCtx = document.getElementById('completionChart').getContext('2d');
             charts.completionChart = new Chart(completionCtx, {
                 type: 'line',
                 data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
                     datasets: [{
                         label: 'Completion Rate %',
-                        data: [25, 40, 60, 75, 85, 90],
+                        data: [15, 22, 35, 42, 55, 68, 72, 78, 82, 88, 92, 95],
                         borderColor: '#6a11cb',
                         backgroundColor: 'rgba(106, 17, 203, 0.1)',
                         borderWidth: 2,
@@ -903,6 +903,11 @@
                         tooltip: {
                             mode: 'index',
                             intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.raw + '%';
+                                }
+                            }
                         }
                     },
                     scales: {
@@ -924,15 +929,16 @@
             charts.priorityChart = new Chart(priorityCtx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['High', 'Medium', 'Low'],
+                    labels: ['High Priority', 'Medium Priority', 'Low Priority'],
                     datasets: [{
-                        data: [12, 19, 8],
+                        data: [18, 32, 15],
                         backgroundColor: [
                             '#ff4d4d',
                             '#ffcc00',
                             '#4CAF50'
                         ],
-                        borderWidth: 1
+                        borderWidth: 1,
+                        hoverOffset: 10
                     }]
                 },
                 options: {
@@ -941,6 +947,17 @@
                     plugins: {
                         legend: {
                             position: 'right',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.dataset.data.reduce((acc, data) => acc + data, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: ${value} tasks (${percentage}%)`;
+                                }
+                            }
                         }
                     }
                 }
@@ -966,11 +983,28 @@
                     plugins: {
                         legend: {
                             display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.raw + ' active users';
+                                }
+                            }
                         }
                     },
                     scales: {
                         y: {
-                            beginAtZero: true
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Number of Users'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Day of Week'
+                            }
                         }
                     }
                 }
@@ -981,15 +1015,16 @@
             charts.statusChart = new Chart(statusCtx, {
                 type: 'pie',
                 data: {
-                    labels: ['To Do', 'In Progress', 'Done'],
+                    labels: ['To Do', 'In Progress', 'Completed'],
                     datasets: [{
-                        data: [8, 5, 12],
+                        data: [24, 18, 42],
                         backgroundColor: [
                             '#6a11cb',
                             '#2575fc',
                             '#4CAF50'
                         ],
-                        borderWidth: 1
+                        borderWidth: 1,
+                        hoverOffset: 10
                     }]
                 },
                 options: {
@@ -998,6 +1033,17 @@
                     plugins: {
                         legend: {
                             position: 'right',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.dataset.data.reduce((acc, data) => acc + data, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: ${value} tasks (${percentage}%)`;
+                                }
+                            }
                         }
                     }
                 }
@@ -1029,12 +1075,34 @@
             ];
             charts.statusChart.update();
             
-            // Update completion rate (simulated data for demo)
+            // Update completion rate (simulated progress for demo)
             const completionRate = Math.round((tasks.done.length / 
                 (tasks.todo.length + tasks.progress.length + tasks.done.length)) * 100);
-            const newCompletionData = charts.completionChart.data.datasets[0].data;
-            newCompletionData.shift();
-            newCompletionData.push(completionRate || 0);
+            
+            // Generate realistic completion rate progression
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const currentMonth = new Date().getMonth();
+            const completionData = [];
+            
+            // Start with some base completion
+            let baseCompletion = 10;
+            
+            // Generate data points that show progress over time
+            for (let i = 0; i <= currentMonth; i++) {
+                // Add some random fluctuation but generally increasing
+                const fluctuation = Math.floor(Math.random() * 10) - 3;
+                const monthCompletion = Math.min(100, Math.max(0, baseCompletion + (i * 8) + fluctuation));
+                completionData.push(monthCompletion);
+            }
+            
+            // Fill remaining months with 0 if needed
+            for (let i = currentMonth + 1; i < 12; i++) {
+                completionData.push(0);
+            }
+            
+            // Update the chart with new data
+            charts.completionChart.data.labels = months;
+            charts.completionChart.data.datasets[0].data = completionData;
             charts.completionChart.update();
         }
 
@@ -1215,13 +1283,13 @@
             if (savedTasks) {
                 tasks = JSON.parse(savedTasks);
             } else {
-                // Default tasks
+                // Default tasks with more realistic data
                 tasks = {
                     todo: [
                         {
                             id: '1',
                             title: 'Implement user authentication',
-                            description: 'Create login and registration system',
+                            description: 'Create login and registration system with JWT tokens',
                             priority: 'high',
                             dueDate: '2023-06-15',
                             createdAt: '2023-06-10T09:00:00Z'
@@ -1229,17 +1297,33 @@
                         {
                             id: '2',
                             title: 'Design dashboard UI',
-                            description: 'Create mockups for admin dashboard',
+                            description: 'Create mockups for admin dashboard with responsive design',
                             priority: 'medium',
                             dueDate: '2023-06-18',
                             createdAt: '2023-06-10T10:30:00Z'
+                        },
+                        {
+                            id: '6',
+                            title: 'Database optimization',
+                            description: 'Review and optimize database queries for better performance',
+                            priority: 'high',
+                            dueDate: '2023-06-20',
+                            createdAt: '2023-06-11T14:15:00Z'
+                        },
+                        {
+                            id: '7',
+                            title: 'User profile page',
+                            description: 'Create UI for user profile with edit functionality',
+                            priority: 'medium',
+                            dueDate: '2023-06-22',
+                            createdAt: '2023-06-12T11:20:00Z'
                         }
                     ],
                     progress: [
                         {
                             id: '3',
                             title: 'Database schema design',
-                            description: 'Create tables for user management',
+                            description: 'Create tables for user management with proper relationships',
                             priority: 'high',
                             dueDate: '2023-06-14',
                             createdAt: '2023-06-09T14:20:00Z'
@@ -1247,20 +1331,44 @@
                         {
                             id: '4',
                             title: 'API endpoints',
-                            description: 'Develop RESTful APIs for frontend',
+                            description: 'Develop RESTful APIs for frontend with proper documentation',
                             priority: 'medium',
                             dueDate: '2023-06-16',
                             createdAt: '2023-06-10T11:15:00Z'
+                        },
+                        {
+                            id: '8',
+                            title: 'Email notification system',
+                            description: 'Implement email templates and sending logic',
+                            priority: 'medium',
+                            dueDate: '2023-06-19',
+                            createdAt: '2023-06-13T09:45:00Z'
                         }
                     ],
                     done: [
                         {
                             id: '5',
                             title: 'Project setup',
-                            description: 'Initialize project repository and structure',
+                            description: 'Initialize project repository and structure with proper configuration',
                             priority: 'low',
                             dueDate: '2023-06-10',
                             createdAt: '2023-06-08T08:45:00Z'
+                        },
+                        {
+                            id: '9',
+                            title: 'Landing page design',
+                            description: 'Create marketing landing page with responsive layout',
+                            priority: 'medium',
+                            dueDate: '2023-06-12',
+                            createdAt: '2023-06-09T16:30:00Z'
+                        },
+                        {
+                            id: '10',
+                            title: 'Authentication middleware',
+                            description: 'Implement JWT verification for protected routes',
+                            priority: 'high',
+                            dueDate: '2023-06-13',
+                            createdAt: '2023-06-11T13:10:00Z'
                         }
                     ]
                 };
