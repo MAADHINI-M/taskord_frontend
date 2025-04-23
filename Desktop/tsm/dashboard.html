@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -614,25 +614,25 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="usermanagement.html" class="nav-link">
+                <a th:href="@{/usermanagement}" class="nav-link">
                     <i class="fas fa-users"></i>
                     <span>User Management</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="projectmanagement.html" class="nav-link">
+                <a th:href="@{/projectmanagement}" class="nav-link">
                     <i class="fas fa-project-diagram"></i>
                     <span>Project Management</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="systemsettings.html" class="nav-link">
+                <a th:href="@{/systemsettings}" class="nav-link">
                     <i class="fas fa-cog"></i>
                     <span>System Settings</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#" class="nav-link" onclick="confirmLogout()">
+                <a th:href="@{/logout}" class="nav-link" onclick="return confirmLogout()">
                     <i class="fas fa-sign-out-alt"></i>
                     <span>Logout</span>
                 </a>
@@ -1148,9 +1148,7 @@
 
         // Confirm logout
         function confirmLogout() {
-            if (confirm('Are you sure you want to logout?')) {
-                window.location.href = 'login.html';
-            }
+            return confirm('Are you sure you want to logout?');
         }
 
         // Refresh data
