@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Dashboard</h2>
+        <p>Welcome, <span th:text="${username}"></span>!</p>
+        <div th:switch="${role}">
+            <p th:case="'ROLE_SUPER'">Super User: You have ultimate control over the system!</p>
+            <p th:case="'ROLE_ADMIN'">Administrator: Manage system settings and users.</p>
+            <p th:case="'ROLE_MANAGER'">Manager: Oversee teams and projects.</p>
+            <p th:case="'ROLE_TEAMMEMBER'">Team Member: Collaborate on assigned tasks.</p>
+            <p th:case="'ROLE_USER'">User: Access basic features and content.</p>
+        </div>
+        <a href="/login">Logout</a>
+    </div>
+</body>
+</html>
