@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taskord</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css">
+    
+</head>
+<body>
+    <nav class="header">
+        <div class="logo">
+            <div class="hamburger" onclick="toggleSidebar()">
+            </div>
+            <i class="fa-brands fa-bluesky" style=" color: #a100ff;"></i>
+            <div class="logotxt">
+                Tascord
+            </div>
+        </div>
+        <div class="search">
+            <input type="text" class="search-bar" placeholder="Search..." onkeyup="filterProjects(event)">
+        </div>
+        <div class="date" id="profileDate" th:text="${currentDate}"></div>
+        <div class="user-profile">
+            <div class="notifications" onclick="showNotifications()">
+                <i class="fas fa-bell"></i>
+                <span class="notification-count" id="notificationCount">0</span>
+            </div>
+            <div class="user-menu">
+                <img src="https://ui-avatars.com/api/?name=Manager+Name" alt="Manager Avatar">
+                <span th:text="${userName}">Manager Name</span>
+                <i class="fas fa-chevron-down"></i>
+                <div class="dropdown-menu">
+                    <a href="#"><i class="fas fa-user"></i> My Profile</a>
+                    <a href="#"><i class="fas fa-cog"></i> Settings</a>
+                    <a href="#"><i class="fas fa-moon"></i> Dark Mode</a>
+                    <a href="#"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <aside class="sidebar">
+        <a href="#" onclick="showManagerDashboard()" class="active"><i class="fas fa-tachometer-alt"></i><span>Manager Dashboard</span></a>
+        <a href="#" onclick="showTeamPerformance()"><i class="fas fa-users"></i><span>Team Performance</span></a>
+        <a href="#" onclick="showProjectOverview()"><i class="fas fa-folder"></i><span>Project Overview</span></a>
+        <a href="#" onclick="showResourceAllocation()"><i class="fas fa-tasks"></i><span>Resource Allocation</span></a>
+        <a href="#" onclick="showReports()"><i class="fas fa-chart-bar"></i><span>Reports</span></a>
+        <a href="#" onclick="showChat()"><i class="fas fa-comments"></i><span>Chat</span></a>
+        <a href="#" onclick="showSettings()"><i class="fas fa-cog"></i><span>Settings</span></a>
+        <div class="team-members" id="teamMembersList">
+            <div style="display: flex; justify-content: space-between; align-items: center;height: 40px;">
+                <h4 style="height: 100%;display: flex;
+                align-items: center;justify-content: center;">Team Members</h4>
+                <i class="fas fa-chevron-down" style="cursor: pointer;" onclick="toggleTeamMembers()"></i>
+            </div>
+            <input type="text" id="teamSearch" class="search-bar" placeholder="Search team..." onkeyup="filterTeamMembers(event)" style="margin-top: 10px;">
+            <!-- <button class="dashboard-btn" onclick="addTeamMember()" style="margin: 10px 0;"><i class="fas fa-user-plus"></i> Add Member</button> -->
+            <div id="teamMembersContent"></div>
+        </div>
+   
+    </aside>
+    <main>
+        <div id="managerDashboardView">
+            <div class="breadcrumb">
+                <a href="#">Home</a>
+                <span class="separator">/</span>
+                <span>Manager Dashboard</span>
+            </div>
+            <div class="project-title">
+                <span>Manager Overview</span>
+                <div class="project-actions">
+                    <button class="dashboard-btn" onclick="openAddProjectModal()">
+                        <i class="fas fa-plus"></i> New Project
+                    </button>
+                    <select class="dashboard-select" onchange="filterByProject(this.value)">
+                        <option value="all">All Projects</option>
+                    </select>
+                </div>
+            </div>
+            <div class="dashboard-container" id="dashboardContainer"></div>
+        </div>
+
+        <!-- Team Performance View -->
+        <div id="teamPerformanceView" class="hidden">
+            <div class="breadcrumb">
+                <a href="#">Home</a>
+                <span class="separator">/</span>
+                <span>Team Performance</span>
+            </div>
+            <div class="project-title">
+                <span>Team Performance</span>
+                <div class="project-actions">
+                    <button class="dashboard-btn" onclick="openAssignTaskModal()">
+                        <i class="fas fa-plus"></i> Assign Task
+                    </button>
+                </div>
+            </div>
+            <div class="dashboard-container" id="teamPerformanceContainer"></div>
+        </div>
+
+        <!-- Project Overview View -->
+        <div id="projectOverviewView" class="hidden">
+            <div class="breadcrumb">
+                <a href="#">Home</a>
+                <span class="separator">/</span>
+                <span>Project Overview</span>
+            </div>
+            <div class="project-title">
+                <span>All Projects</span>
+                <button class="dashboard-btn" onclick="openAddProjectModal()">
+                    <i class="fas fa-plus"></i> Add Project
+                </button>
+            </div>
+            <div class="list-view" id="projectList"></div>
+        </div>
+
+        <!-- Resource Allocation View -->
+        <div id="resourceAllocationView" class="hidden">
+            <div class="breadcrumb">
+                <a href="#">Home</a>
+                <span class="separator">/</span>
+                <span>Resource Allocation</span>
+            </div>
+            <div class="project-title">
+                <span>Resource Allocation</span>
+                <div class="project-actions">
+                    <button class="dashboard-btn" onclick="openAssignTaskModal()">
+                        <i class="fas fa-plus"></i> Assign Task
+                    </button>
+                </div>
+            </div>
+            <div class="dashboard-container" id="resourceAllocationContainer"></div>
+        </div>
+
+        <!-- Reports View -->
+        <div id="reportsView" class="hidden">
+            <div class="breadcrumb">
+                <a href="#">Home</a>
+                <span class="separator">/</span>
+                <span>Reports</span>
+            </div>
+            <div class="project-title">
+                <span>Reports</span>
+                <div class="project-actions">
+                    <button class="dashboard-btn" onclick="generateReport()">
+                        <i class="fas fa-download"></i> Generate Report
+                    </button>
+                </div>
+            </div>
+            <div class="dashboard-container" id="reportsContainer"></div>
+        </div>
+
+        <!-- Chat View -->
+        <div id="chatView" class="hidden">
+            <div class="breadcrumb">
+                <a href="#">Home</a>
+                <span class="separator">/</span>
+                <span>Chat</span>
+            </div>
+            <div class="project-title">
+                <span>Team Chat</span>
+            </div>
+            <div class="dashboard-container" id="chatContainerView"></div>
+        </div>
+
+        <!-- Settings View -->
+        <div id="settingsView" class="hidden">
+            <div class="breadcrumb">
+                <a href="#">Home</a>
+                <span class="separator">/</span>
+                <span>Settings</span>
+            </div>
+            <div class="project-title">
+                <span>Settings</span>
+            </div>
+            <div class="dashboard-container" id="settingsContainer"></div>
+        </div>
+
+        <!-- Project Modal -->
+        <div class="modal" id="projectModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2><i class="fas fa-folder"></i> <span id="projectModalTitle">Add New Project</span></h2>
+                    <button class="close-btn" onclick="closeModal()">×</button>
+                </div>
+                <div class="form-group">
+                    <label for="projectName">Project Name</label>
+                    <input type="text" id="projectName" placeholder="Enter project name">
+                </div>
+                <div class="form-group">
+                    <label for="projectDescription">Description</label>
+                    <textarea id="projectDescription" placeholder="Enter project description"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="projectDueDate">Due Date</label>
+                    <input type="date" id="projectDueDate">
+                </div>
+                <div class="form-group">
+                    <label>Assigned Team</label>
+                    <div class="user-select" id="teamSelect"></div>
+                </div>
+                <div class="modal-footer">
+                    <button class="delete-btn hidden" id="deleteProjectBtn" onclick="deleteProject()"> <i class="fas fa-trash"></i> Delete</button>
+                    <button class="cancel-btn" onclick="closeModal()"> <i class="fas fa-times"></i> Cancel</button>
+                    <button class="save-btn" onclick="saveProject()"> <i class="fas fa-save"></i> Save Project</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Task Assignment Modal -->
+        <div class="modal" id="taskModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2><i class="fas fa-tasks"></i> Assign Task</h2>
+                    <button class="close-btn" onclick="closeModal()">×</button>
+                </div>
+                <div class="form-group">
+                    <label for="taskTitle">Task Title</label>
+                    <input type="text" id="taskTitle" placeholder="Enter task title">
+                </div>
+                <div class="form-group">
+                    <label for="taskDescription">Description</label>
+                    <textarea id="taskDescription" placeholder="Enter task description"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="taskDueDate">Due Date</label>
+                    <input type="date" id="taskDueDate">
+                </div>
+                <div class="form-group">
+                    <label for="taskPriority">Priority</label>
+                    <select id="taskPriority">
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Assigned To</label>
+                    <div class="user-select" id="taskTeamSelect"></div>
+                </div>
+                <div class="modal-footer">
+                    <button class="cancel-btn" onclick="closeModal()"> <i class="fas fa-times"></i> Cancel</button>
+                    <button class="save-btn" onclick="saveTask()"> <i class="fas fa-save"></i> Save Task</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notifications -->
+        <div class="toast-container" id="toastContainer"></div>
+    
+    </main>
+    <script src="script.js" defer></script>
+</body>
+</html>
